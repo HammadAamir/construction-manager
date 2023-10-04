@@ -1,8 +1,7 @@
 """
-URL configuration for construction_manager project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
+    https://docs.djangoproject.com/en/3.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -16,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+# from .views import ImageUpload, ImageList, ImageOrder, ImagePreviewSave
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('upload/', ImageUpload.as_view()),
+    # path('list/', ImageList.as_view()),
+    # path('order/', ImageOrder.as_view()),
+    # path('preview/', ImagePreviewSave.as_view()),
 ]
