@@ -1,3 +1,210 @@
-from django.shortcuts import render
-
+import os
+import time
+import calendar
+from rest_framework.views import APIView
+from .serializers import *
+from utils.common import *
+from .models import Customer
 # Create your views here.
+
+class ReferenceBy(APIView):
+    serializer_class = ReferenceSerializer
+    def post(self, request):
+        try:
+            reference_serializer = self.serializer_class(data=request.data)
+            if reference_serializer.is_valid():
+                reference_serializer.save()
+                return success_response(message="Reference added successfully")
+            return error_response(message="Invalid data")
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class ReferenceByList(APIView):
+    serializer_class = ReferenceSerializer
+    pagination_class = CustomPagination
+    def get(self, request):
+        try:
+            reference  = ReferenceBy.objects.all().order_by("-id")
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(reference, request)
+            serializer_data = self.serializer_class(paginated_queryset, many=True).data
+            return paginator.get_paginated_response(serializer_data)             
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+        
+class WorkerAdd(APIView):
+    serializer_class = WorkerSerializer
+    def post(self, request):
+        try:
+            image_ls = []
+            images_path_ls = []
+            image_ls.append(request.FILES["dl_image_front"])
+            image_ls.append(request.FILES["dl_image_back"])
+            gmt = time.gmtime()
+            ts = calendar.timegm(gmt)
+            images_path = "/".join("public","images",str(ts))
+            os.makedirs(images_path)
+            for i in range(len(image_ls)):
+                with open(images_path+"/"+image_ls[i], "wb") as file:
+                    for chunk in image_ls[i].chunks():
+                        file.write(chunk)
+                    images_path_ls.append(image_ls+"/"+image_ls[i])
+            worker_to_save = {
+                "full_name": request.data.get("full_name"),
+                "telephone": request.data.get("telephone"),
+                "address": request.data.get("address"),
+                "skills": request.data.get("skills"),
+                "reffer_by": request.data.get("id"),
+                "ssn": request.data.get("ssn"),
+                "dl_image_front": images_path_ls[0],
+                "dl_image_back": images_path_ls[1],
+                "per_day_price": request.data.get("per_day_price"),
+                
+            }
+            worker_serializer = self.serializer_class(data=worker_to_save)
+            if worker_serializer.is_valid():
+                worker_serializer.save()
+                return success_response(message="Worker added successfully")
+            return error_response(message="Invalid data")
+            
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class WorkerList(APIView):
+    serializer_class = WorkerSerializer
+    pagination_class = CustomPagination
+    def get(self, request):
+        try:
+            worker  = Worker.objects.all().order_by("-id")
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(worker, request)
+            serializer_data = self.serializer_class(paginated_queryset, many=True).data
+            return paginator.get_paginated_response(serializer_data)             
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class AgreementAdd(APIView):
+    serializer_class = AgreementSerializer
+    def post(self, request):
+        try:
+            payment_ls = []
+            agreement_to_save = {
+                "sub_name": request.data.get("id"),
+                "project":request.data.get("id"),
+                "start_date": request.data.get("start_date"),
+                "end_date": request.data.get("end_date"),
+                "price":request.data.get("price")
+            }
+            agreement_serializer = self.serializer_class(data=agreement_to_save)
+            if agreement_serializer.is_valid():
+                agreement_serializer.save()
+                for payment in request.data.get("payment"):
+                    payment["agreement"] = agreement_serializer.data["id"]
+                    payment_ls.append(payment)
+                payment_serializer = PaymentSerializer(data=payment_ls, many=True)
+                if payment_serializer.is_valid():
+                    payment_serializer.save()
+                    return success_response(message = "Record added successfully")
+            return error_response(message="Invalid data")                
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class CustomerAdd(APIView):
+    serializer_class = CustomerSerializer
+    def post(self, request):
+        try:
+            customer_serializer = self.serializer_class(data=request.data)
+            if customer_serializer.is_valid():
+                customer_serializer.save()
+                return success_response(message = "Customer added successfully")
+            return error_response(message="Invalid data")                
+        except Exception as e:
+            return error_response(message=str(e))
+        
+class CustomerList(APIView):
+    serializer_class = CustomerSerializer
+    pagination_class = CustomPagination
+    def get(self, request):
+        try:
+            customer  = Customer.objects.all().order_by("-id")
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(customer, request)
+            serializer_data = self.serializer_class(paginated_queryset, many=True).data
+            return paginator.get_paginated_response(serializer_data)             
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class SubContractorAdd(APIView):
+    serializer_class = SubContractorSerializer
+    def post(self, request):
+        try:
+            subcontractor_serializer = self.serializer_class(data=request.data)
+            if subcontractor_serializer.is_valid():
+                subcontractor_serializer.save()
+                return success_response(message = "Record added successfully")
+            return error_response(message="Invalid data")                
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class SubContractorList(APIView):
+    serializer_class = SubContractorSerializer
+    pagination_class = CustomPagination
+    def get(self, request):
+        try:
+            subcontractor  = SubContractor.objects.all().order_by("-id")
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(subcontractor, request)
+            serializer_data = self.serializer_class(paginated_queryset, many=True).data
+            return paginator.get_paginated_response(serializer_data)                 
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class ProjectAdd(APIView):
+    serializer_class = ProjectSerializer
+    def post(self, request):
+        try:
+            project_to_save = {
+                "name":request.data.get("name"),
+                "address": request.data.get("address"),
+                "scope_of_works": request.data.get("scope_of_works"),
+                "customer": request.data.get("id"),
+                "superintendent": request.data.get("id")  
+            }
+            image = request.FILES['profile_image']
+            gmt = time.gmtime()
+            ts = calendar.timegm(gmt)
+            path = "/".join(["public","images", str(ts)])
+            input_image_path = path + "/" +image.name
+            with open(input_image_path, "wb") as file:
+                for f in image.chunks():
+                    file.write(f)
+            project_serializer = self.serializer_class(data=request.data)
+            if project_serializer.is_valid():
+                project_serializer.save()
+                return success_response(message = "Record added successfully")
+            return error_response(message="Invalid data")                
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class ProjectList(APIView):
+    serializer_class = ProjectSerializer
+    pagination_class = CustomPagination
+    def get(self, request):
+        try:
+            project  = Project.objects.all().order_by("-id")
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(project, request)
+            serializer_data = self.serializer_class(paginated_queryset, many=True).data
+            return paginator.get_paginated_response(serializer_data)                 
+        except Exception as e:
+            return error_response(message=str(e))

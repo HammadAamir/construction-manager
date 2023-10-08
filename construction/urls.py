@@ -15,10 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-# from .views import ImageUpload, ImageList, ImageOrder, ImagePreviewSave
+from .views import *
 urlpatterns = [
-    # path('upload/', ImageUpload.as_view()),
-    # path('list/', ImageList.as_view()),
-    # path('order/', ImageOrder.as_view()),
+    path('refrence_add/', ReferenceBy.as_view()),
+    path('refrence_list/', ReferenceByList.as_view()),
+    path('worker_add/', WorkerAdd.as_view()),
+    path('worker_list/', WorkerList.as_view()),
+    path('worker_list/', WorkerList.as_view()),
+    path('customer_add/', CustomerAdd.as_view()),
+    path('customer_list/', CustomerList.as_view()),
+    path('subcontractor_add/', SubContractorAdd.as_view()),
+    path('subcontractor_list/', SubContractorList.as_view()),
+    path('project_add/', ProjectAdd.as_view()),
+    path('project_list/', ProjectList.as_view()),
+    path('agreement_add/', AgreementAdd.as_view()),
     # path('preview/', ImagePreviewSave.as_view()),
 ]

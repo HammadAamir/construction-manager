@@ -58,16 +58,11 @@ class Project(models.Model):
     # contract = models.ForeignKey(Agreement, on_delete=models.CASCADE)
     profile_image = models.TextField(null=True, blank=True)    
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    superintendent = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'project'
 
-class ProjectIntendent(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    superintendent = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = 'project_intendent'
 
 class Agreement(models.Model):
     sub_name = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -92,10 +87,8 @@ class Payment(models.Model):
 class DailyWork(models.Model):
     date = models.DateField(null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    material = models.CharField(max_length=500, null=True, blank=True)
     company_name = models.CharField(max_length=500, null=True, blank=True)
-    invoice_number = models.TextField(null=True, blank=True)    
-    receipt_images = models.TextField(null=True, blank=True)    
+    invoice_number = models.TextField(null=True, blank=True)      
 
     class Meta:
         db_table = 'daily_work'
