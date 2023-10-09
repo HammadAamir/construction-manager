@@ -29,5 +29,6 @@ urlpatterns = [
     path('project_add/', ProjectAdd.as_view()),
     path('project_list/', ProjectList.as_view()),
     path('agreement_add/', AgreementAdd.as_view()),
+    path('daily_work_add/', DailyWorkAdd.as_view()),
     # path('preview/', ImagePreviewSave.as_view()),
 ]
