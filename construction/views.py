@@ -97,8 +97,8 @@ class AgreementAdd(APIView):
         try:
             payment_ls = []
             agreement_to_save = {
-                "sub_name": request.data.get("id"),
-                "project":request.data.get("id"),
+                "sub_name": request.data.get("sub_id"),
+                "project":request.data.get("project_id"),
                 "start_date": request.data.get("start_date"),
                 "end_date": request.data.get("end_date"),
                 "price":request.data.get("price")
@@ -106,7 +106,7 @@ class AgreementAdd(APIView):
             agreement_serializer = self.serializer_class(data=agreement_to_save)
             if agreement_serializer.is_valid():
                 agreement_serializer.save()
-                for payment in request.data.get("payment"):
+                for payment in request.data.get("payments"):
                     payment["agreement"] = agreement_serializer.data["id"]
                     payment_ls.append(payment)
                 payment_serializer = PaymentSerializer(data=payment_ls, many=True)
@@ -223,9 +223,9 @@ class DailyWorkAdd(APIView):
             images_path_ls = []
             gmt = time.gmtime()
             ts = calendar.timegm(gmt)
-            images_path = "/".join("public", "images", str(ts))
+            images_path = "/".join(["public", "images", str(ts)])
             os.makedirs(images_path)
-            worker_ls = request.data.get("workers_ids")
+            worker_ls = request.data.get("workers_ids").split(",")
             daily_workers = []
             daily_work_images = []
             daily_work_to_save = {
