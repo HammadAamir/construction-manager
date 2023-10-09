@@ -46,6 +46,16 @@ class LoginUser(APIView):
         except Exception as e:
             return error_response(message=str(e))
         
+class GetUsers(APIView):
+    serializer_class = UserSerializer
+    def get(self, request):
+        try:
+            user = User.objects.all()
+            serializer_data = self.serializer_class(user, many=True).data
+            return success_response(data=serializer_data)
+        except Exception as e:
+            return error_response(message=str(e))
+
 
 class Logout(APIView):
     def post(self, request):
