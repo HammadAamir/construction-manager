@@ -48,29 +48,37 @@ class WorkerAdd(APIView):
             image_ls.append(request.FILES["dl_image_back"])
             gmt = time.gmtime()
             ts = calendar.timegm(gmt)
-            images_path = "/".join(["public","images",str(ts)])
-            os.makedirs(images_path)
-            for i in range(len(image_ls)):
-                with open(images_path+"/"+image_ls[i].name, "wb") as file:
-                    for chunk in image_ls[i].chunks():
-                        file.write(chunk)
-                    images_path_ls.append(images_path+"/"+image_ls[i].name)
-            worker_to_save = {
-                "full_name": request.data.get("full_name"),
-                "telephone": request.data.get("telephone"),
-                "address": request.data.get("address"),
-                "skills": request.data.get("skills"),
-                "reffer_by": request.data.get("id"),
-                "ssn": request.data.get("ssn"),
-                "dl_image_front": images_path_ls[0],
-                "dl_image_back": images_path_ls[1],
-                "per_day_price": request.data.get("per_day_price"),
-                
+            reference_to_save = {
+                "name": request.data.get("name"),
+                "telephone":request.data.get("telephone"),
+                "address": request.data.get("address")
             }
-            worker_serializer = self.serializer_class(data=worker_to_save)
-            if worker_serializer.is_valid():
-                worker_serializer.save()
-                return success_response(message="Worker added successfully")
+            reference_serializer = ReferenceSerializer(data=reference_to_save)
+            if reference_serializer.is_valid():
+                reference_serializer.save()
+                images_path = "/".join(["public","images",str(ts)])
+                os.makedirs(images_path)
+                for i in range(len(image_ls)):
+                    with open(images_path+"/"+image_ls[i].name, "wb") as file:
+                        for chunk in image_ls[i].chunks():
+                            file.write(chunk)
+                        images_path_ls.append(images_path+"/"+image_ls[i].name)
+                worker_to_save = {
+                    "full_name": request.data.get("full_name"),
+                    "telephone": request.data.get("telephone"),
+                    "address": request.data.get("address"),
+                    "skills": request.data.get("skills"),
+                    "reffer_by": reference_serializer.data["id"],
+                    "ssn": request.data.get("ssn"),
+                    "dl_image_front": images_path_ls[0],
+                    "dl_image_back": images_path_ls[1],
+                    "per_day_price": request.data.get("per_day_price"),
+
+                }
+                worker_serializer = self.serializer_class(data=worker_to_save)
+                if worker_serializer.is_valid():
+                    worker_serializer.save()
+                    return success_response(message="Worker added successfully")
             return error_response(message="Invalid data")
             
         except Exception as e:
