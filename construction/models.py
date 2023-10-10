@@ -89,7 +89,7 @@ class DailyWork(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=500, null=True, blank=True)
     invoice_number = models.TextField(null=True, blank=True)      
-
+    receipt_image = models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'daily_work'
         
@@ -101,7 +101,7 @@ class DailyWorker(models.Model):
         db_table = 'daily_worker'
 
 class DailyWorkImage(models.Model):
-    receipt_image = models.TextField(null=True, blank=True)    
+    project_image = models.TextField(null=True, blank=True)    
     work = models.ForeignKey(DailyWork, on_delete=models.CASCADE)
     
     class Meta:

@@ -121,6 +121,7 @@ class AgreementAdd(APIView):
                 if payment_serializer.is_valid():
                     payment_serializer.save()
                     return success_response(message = "Record added successfully")
+            print(agreement_serializer.errors)
             return error_response(message="Invalid data")                
         except Exception as e:
             return error_response(message=str(e))
@@ -232,6 +233,7 @@ class DailyWorkAdd(APIView):
             gmt = time.gmtime()
             ts = calendar.timegm(gmt)
             images_path = "/".join(["public", "images", str(ts)])
+            
             os.makedirs(images_path)
             worker_ls = request.data.get("workers_ids").split(",")
             daily_workers = []
@@ -242,6 +244,15 @@ class DailyWorkAdd(APIView):
                 "company_name": request.data.get("company_name"),
                 "invoice_number": request.data.get("invoice_number")
             }
+            
+            image = request.FILES['receipt_image']
+            path = "/".join(["public","images", str(ts)])
+            os.makedirs(path, exist_ok=True)
+            input_image_path = path + "/" +image.name
+            with open(input_image_path, "wb") as file:
+                for f in image.chunks():
+                    file.write(f)
+            daily_work_to_save["receipt_image"] = input_image_path
             daily_work_serializer = self.serializer_class(data=daily_work_to_save)
             if daily_work_serializer.is_valid():
                 daily_work_serializer.save()
@@ -253,15 +264,17 @@ class DailyWorkAdd(APIView):
                 worker_serializer = DailyWorkerSerializer(data=daily_workers, many=True)
                 if worker_serializer.is_valid():
                     worker_serializer.save()
+                print(request.FILES)
 
                 for image in request.FILES.getlist("images"):
                     with open(images_path+"/"+image.name, "wb") as file:
                         for chunk in image.chunks():
                             file.write(chunk)
                         images_path_ls.append(images_path+"/"+image.name)
+                print(images_path_ls)
                 for path in images_path_ls:
                     daily_work_images.append({
-                        "receipt_image": path,
+                        "project_image": path,
                         "work": daily_work_serializer.data["id"]
                     })
                 work_image_serializer = DailyWorkImageSerializer(data=daily_work_images, many=True)
