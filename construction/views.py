@@ -49,9 +49,9 @@ class WorkerAdd(APIView):
             gmt = time.gmtime()
             ts = calendar.timegm(gmt)
             reference_to_save = {
-                "name": request.data.get("name"),
-                "telephone":request.data.get("telephone"),
-                "address": request.data.get("address")
+                "name": request.data.get("refer_name"),
+                "telephone":request.data.get("refer_telephone"),
+                "address": request.data.get("refer_address")
             }
             reference_serializer = ReferenceSerializer(data=reference_to_save)
             if reference_serializer.is_valid():

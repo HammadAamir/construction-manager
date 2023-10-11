@@ -83,7 +83,7 @@ class DailyWorkSerializer(serializers.ModelSerializer):
         images = DailyWorkImage.objects.filter(work=obj.id)
         if images.exists():
             for image in images:
-                image_ls.append(settings.MY_BASE_URL+"/"+image.project_image)
+                image_ls.append(image.project_image)
             return image_ls
         else:
             return image_ls
