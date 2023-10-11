@@ -49,9 +49,9 @@ class WorkerAdd(APIView):
             gmt = time.gmtime()
             ts = calendar.timegm(gmt)
             reference_to_save = {
-                "name": request.data.get("refer_name"),
-                "telephone":request.data.get("refer_telephone"),
-                "address": request.data.get("refer_address")
+                "name": request.data.get("name"),
+                "telephone":request.data.get("telephone"),
+                "address": request.data.get("address")
             }
             reference_serializer = ReferenceSerializer(data=reference_to_save)
             if reference_serializer.is_valid():
@@ -83,8 +83,37 @@ class WorkerAdd(APIView):
             
         except Exception as e:
             return error_response(message=str(e))
+
         
-        
+class AgreementList(APIView):
+    serializer_class = AgreementSerializer
+    pagination_class = CustomPagination
+
+    def get(self, request):
+        try:
+            agreement = Agreement.objects.all().order_by("-id")
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(agreement, request)
+            serializer_data = self.serializer_class(paginated_queryset, many=True).data
+            return paginator.get_paginated_response(serializer_data)
+        except Exception as e:
+            return error_response(message=str(e))
+
+class DailyWorkList(APIView):
+    serializer_class = DailyWorkSerializer
+    pagination_class = CustomPagination
+
+    def get(self, request):
+        try:
+            dailywork = DailyWork.objects.all().order_by("-id")
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(dailywork, request)
+            serializer_data = self.serializer_class(paginated_queryset, many=True).data
+            return paginator.get_paginated_response(serializer_data)
+        except Exception as e:
+            return error_response(message=str(e))
+
+
 class WorkerList(APIView):
     serializer_class = WorkerSerializer
     pagination_class = CustomPagination
@@ -121,7 +150,6 @@ class AgreementAdd(APIView):
                 if payment_serializer.is_valid():
                     payment_serializer.save()
                     return success_response(message = "Record added successfully")
-            print(agreement_serializer.errors)
             return error_response(message="Invalid data")                
         except Exception as e:
             return error_response(message=str(e))
@@ -233,7 +261,6 @@ class DailyWorkAdd(APIView):
             gmt = time.gmtime()
             ts = calendar.timegm(gmt)
             images_path = "/".join(["public", "images", str(ts)])
-            
             os.makedirs(images_path)
             worker_ls = request.data.get("workers_ids").split(",")
             daily_workers = []
@@ -244,15 +271,6 @@ class DailyWorkAdd(APIView):
                 "company_name": request.data.get("company_name"),
                 "invoice_number": request.data.get("invoice_number")
             }
-            
-            image = request.FILES['receipt_image']
-            path = "/".join(["public","images", str(ts)])
-            os.makedirs(path, exist_ok=True)
-            input_image_path = path + "/" +image.name
-            with open(input_image_path, "wb") as file:
-                for f in image.chunks():
-                    file.write(f)
-            daily_work_to_save["receipt_image"] = input_image_path
             daily_work_serializer = self.serializer_class(data=daily_work_to_save)
             if daily_work_serializer.is_valid():
                 daily_work_serializer.save()
@@ -264,17 +282,15 @@ class DailyWorkAdd(APIView):
                 worker_serializer = DailyWorkerSerializer(data=daily_workers, many=True)
                 if worker_serializer.is_valid():
                     worker_serializer.save()
-                print(request.FILES)
 
                 for image in request.FILES.getlist("images"):
                     with open(images_path+"/"+image.name, "wb") as file:
                         for chunk in image.chunks():
                             file.write(chunk)
                         images_path_ls.append(images_path+"/"+image.name)
-                print(images_path_ls)
                 for path in images_path_ls:
                     daily_work_images.append({
-                        "project_image": path,
+                        "receipt_image": path,
                         "work": daily_work_serializer.data["id"]
                     })
                 work_image_serializer = DailyWorkImageSerializer(data=daily_work_images, many=True)
