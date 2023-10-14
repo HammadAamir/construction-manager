@@ -32,5 +32,9 @@ urlpatterns = [
     path('agreement_list/', AgreementList.as_view()),
     path('daily_work_add/', DailyWorkAdd.as_view()),
     path('dailywork_list/', DailyWorkList.as_view()),
+    path('worker_per_project_report/', WorkerPerProjectReport.as_view()),
+    path('worker_report/', WorkerReport.as_view()),
+    path('project_report/', ProjectReport.as_view()),
+    path('dailywork_report/', DailyWorkReport.as_view()),
     # path('preview/', ImagePreviewSave.as_view()),
 ]

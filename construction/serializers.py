@@ -63,16 +63,29 @@ class SubContractorSerializer(serializers.ModelSerializer):
         
         
 class ProjectSerializer(serializers.ModelSerializer):
+    customer_name = serializers.SerializerMethodField("get_customer")
+    superintendent_name = serializers.SerializerMethodField("get_superintendent")
     
     class Meta:
         model = Project
         fields = "__all__"
-
+        
+    def get_customer(self, obj):
+        if obj.customer is not None:
+            return obj.customer.full_name
+        else:
+            return ""           
+        
+    def get_superintendent(self, obj):
+        if obj.superintendent is not None:
+            return obj.superintendent.first_name +" "+ obj.superintendent.last_name
+        else:
+            return ""  
 
 class DailyWorkSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField("get_image")
     workers = serializers.SerializerMethodField("get_worker")
-
+    project_name = serializers.SerializerMethodField("get_project")
 
     class Meta:
         model = DailyWork
@@ -97,6 +110,12 @@ class DailyWorkSerializer(serializers.ModelSerializer):
             return worker_ls
         else:
             return worker_ls
+    
+    def get_project(self, obj):
+        if obj.project is None:
+            return ""
+        else:
+            return obj.project.name
 
 
 class DailyWorkImageSerializer(serializers.ModelSerializer):
@@ -117,10 +136,28 @@ class DailyWorkerSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-
-
-
 class DailyWorkerImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = DailyWorkImage
         fields = "__all__"
+        
+        
+class WorkerPerProjectReportSerializer(serializers.ModelSerializer):
+    worker_count = serializers.SerializerMethodField("get_worker")
+    project = serializers.SerializerMethodField("get_project")
+    class Meta:
+        model = DailyWork
+        fields = ["project", "worker_count"]
+        
+    def get_project(self, obj):
+        if obj.project is None:
+            return ""
+        else:
+            return obj.project.name
+        
+    def get_worker(self, obj):
+        dailyworker = DailyWorker.objects.filter(work=obj.id)
+        if dailyworker.exists():
+            return dailyworker.count()
+        else:
+            return ""

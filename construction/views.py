@@ -1,3 +1,4 @@
+import csv
 import os
 import time
 import calendar
@@ -298,5 +299,85 @@ class DailyWorkAdd(APIView):
                     work_image_serializer.save()
                     return success_response(message="Record added successfully")
             return error_response(message="Invalid data")
+        except Exception as e:
+            return error_response(message=str(e))
+
+
+class WorkerPerProjectReport(APIView):
+    serializer_class = WorkerPerProjectReportSerializer
+    def get(self, request):
+        try:
+            dailywork = DailyWork.objects.all()
+            serializer_data = self.serializer_class(dailywork, many=True).data
+            dir_path = os.path.join(settings.BASE_DIR, "public", "reports")
+            os.makedirs(dir_path, exist_ok=True)
+            file_name = os.path.join("public/reports/", "workerperproject"+".csv")
+            headers = ["Project", "Worker Count"]
+            with open(file_name, "w") as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                for data in serializer_data:
+                    writer.writerow([data["project"],data["worker_count"]])
+            return success_response(data=file_name)
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class WorkerReport(APIView):
+    serializer_class = WorkerSerializer
+    def get(self, request):
+        try:
+            worker = Worker.objects.all()
+            serializer_data = self.serializer_class(worker, many=True).data
+            dir_path = os.path.join(settings.BASE_DIR, "public", "reports")
+            os.makedirs(dir_path, exist_ok=True)
+            file_name = os.path.join("public/reports/", "worker"+".csv")
+            headers = ["Full Name", "Telephone", "Address", "Skills", "Reference","SSN", "Per Day Price"]
+            with open(file_name, "w") as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                for data in serializer_data:
+                    writer.writerow([data["full_name"],data["telephone"],data["address"],data["skills"],data["reference"],data["ssn"],data["per_day_price"]])
+            return success_response(data=file_name)
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class ProjectReport(APIView):
+    serializer_class = ProjectSerializer
+    def get(self, request):
+        try:
+            project = Project.objects.all()
+            serializer_data = self.serializer_class(project, many=True).data
+            dir_path = os.path.join(settings.BASE_DIR, "public", "reports")
+            os.makedirs(dir_path, exist_ok=True)
+            file_name = os.path.join("public/reports/", "project"+".csv")
+            headers = ["Name", "Address", "Scope of Work", "Customer","SuperIntendent"]
+            with open(file_name, "w") as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                for data in serializer_data:
+                    writer.writerow([data["name"],data["address"],data["scope_of_works"],data["customer_name"],data["superintendent_name"]])
+            return success_response(data=file_name)
+        except Exception as e:
+            return error_response(message=str(e))
+        
+        
+class DailyWorkReport(APIView):
+    serializer_class = DailyWorkSerializer
+    def get(self, request):
+        try:
+            dailywork = DailyWork.objects.all()
+            serializer_data = self.serializer_class(dailywork, many=True).data
+            dir_path = os.path.join(settings.BASE_DIR, "public", "reports")
+            os.makedirs(dir_path, exist_ok=True)
+            file_name = os.path.join("public/reports/", "dailywork"+".csv")
+            headers = ["Date", "Project", "Company Name", "Invoice Number","Workers"]
+            with open(file_name, "w") as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                for data in serializer_data:
+                    writer.writerow([data["date"],data["project_name"],data["company_name"],data["invoice_number"],",".join(data["workers"])])
+            return success_response(data=file_name)
         except Exception as e:
             return error_response(message=str(e))
