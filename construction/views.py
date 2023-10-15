@@ -381,3 +381,19 @@ class DailyWorkReport(APIView):
             return success_response(data=file_name)
         except Exception as e:
             return error_response(message=str(e))
+        
+class DashBoard(APIView):
+    def get(self, request):
+        try:
+            workers = Worker.objects.all().count()
+            customers = Customer.objects.all().count()
+            projects = Project.objects.all().count()
+            sub_contractors = SubContractor.objects.count()
+            return success_response(data={
+                "workers": workers,
+                "customers": customers,
+                "projects": projects,
+                "sub_contractors":sub_contractors
+            })
+        except Exception as e:
+            return error_response(message=str(e))
