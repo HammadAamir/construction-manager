@@ -21,7 +21,7 @@ class WorkerSerializer(serializers.ModelSerializer):
 
 class AgreementSerializer(serializers.ModelSerializer):
     payment_records = serializers.SerializerMethodField("get_payment")
-    superintendent_name = serializers.SerializerMethodField("get_superintendent")
+    subcontractor_name = serializers.SerializerMethodField("get_superintendent")
     project_name = serializers.SerializerMethodField("get_project")
     class Meta:
         model = Agreement
@@ -42,8 +42,8 @@ class AgreementSerializer(serializers.ModelSerializer):
             return payment_ls
         
     def get_superintendent(self, obj):
-        if obj.superintendent is not None:
-            return obj.superintendent.first_name +" "+ obj.superintendent.last_name
+        if obj.sub_name is not None:
+            return obj.sub_name.full_name
         else:
             return ""
         
