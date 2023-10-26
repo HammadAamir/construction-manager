@@ -42,8 +42,8 @@ class AgreementSerializer(serializers.ModelSerializer):
             return payment_ls
         
     def get_superintendent(self, obj):
-        if obj.superintendent is not None:
-            return obj.superintendent.first_name +" "+ obj.superintendent.last_name
+        if obj.sub_name is not None:
+            return obj.sub_name.first_name +" "+ obj.sub_name.last_name
         else:
             return ""
         

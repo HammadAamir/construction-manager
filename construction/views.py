@@ -382,6 +382,29 @@ class DailyWorkReport(APIView):
         except Exception as e:
             return error_response(message=str(e))
         
+class ProjectPaymentReport(APIView):
+    serializer_class = AgreementSerializer
+    def get(self, request):
+        try:
+            agreement = Agreement.objects.all()
+            serializer_data = self.serializer_class(agreement, many=True).data
+            dir_path = os.path.join(settings.BASE_DIR, "public", "reports")
+            os.makedirs(dir_path, exist_ok=True)
+            file_name = os.path.join("public/reports/", "payment"+".csv")
+            headers = ["Project Name", "Payments"]
+            with open(file_name, "w") as file:
+                writer = csv.writer(file)
+                writer.writerow(headers)
+                for data in serializer_data:
+                    payments_ls = []
+                    for payment in data["payment_records"]:
+                        payments_ls.append("amount:"+payment["amount"])
+                    payments = ",".join(payments_ls)
+                    writer.writerow([data["project_name"],payments])
+            return success_response(data=file_name)
+        except Exception as e:
+            return error_response(message=str(e))
+        
 class DashBoard(APIView):
     def get(self, request):
         try:
