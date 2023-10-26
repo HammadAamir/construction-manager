@@ -65,7 +65,7 @@ class Project(models.Model):
 
 
 class Agreement(models.Model):
-    sub_name = models.ForeignKey(User, on_delete=models.CASCADE)
+    sub_name = models.ForeignKey(SubContractor, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)    
